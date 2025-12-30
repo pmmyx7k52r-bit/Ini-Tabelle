@@ -2,246 +2,298 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPG Initiative & Effekte</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RPG Initiative Pro</title>
 <style>
 :root {
---bg-color: #1a1a2e;
---card-bg: #16213e;
---accent: #e94560;
---text: #e9e9e9;
---secondary: #533483;
---effect-color: #00a8cc;
+--bg-color: #0f172a;
+--card-bg: #1e293b;
+--accent: #f43f5e;
+--text: #f1f5f9;
+--secondary: #6366f1;
+--effect-color: #38bdf8;
+--player-color: #10b981;
+--active-row: rgba(99, 102, 241, 0.3);
+--gap: 25px;
 }
 
 body {
-font-family: 'Segoe UI', sans-serif;
+font-family: 'Inter', system-ui, sans-serif;
 background-color: var(--bg-color);
 color: var(--text);
+margin: 0;
+padding: 10px;
 display: flex;
 flex-direction: column;
 align-items: center;
-padding: 10px;
-margin: 0;
+overflow-x: hidden;
 }
 
-.container { width: 100%; max-width: 500px; }
-h2 { text-align: center; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.2rem; }
-h3 { color: var(--effect-color); margin: 20px 0 10px 0; font-size: 1rem; border-bottom: 1px solid var(--secondary); }
+.container { width: 100%; max-width: 500px; display: flex; flex-direction: column; }
 
-.input-group {
+.section {
 background: var(--card-bg);
 padding: 15px;
-border-radius: 10px;
-display: flex;
-gap: 8px;
-margin-bottom: 15px;
-box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+border-radius: 16px;
+margin-bottom: var(--gap);
+box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-input {
-background: #0f3460;
-border: 1px solid var(--secondary);
+h2 { text-align: center; color: var(--accent); margin-top: 0; text-transform: uppercase; font-size: 1rem; letter-spacing: 1px; }
+
+.input-group { display: flex; gap: 8px; margin-bottom: 10px; }
+
+input, select {
+background: #0f172a;
+border: 1px solid #334155;
 color: white;
-padding: 10px;
-border-radius: 5px;
+padding: 12px;
+border-radius: 8px;
+font-size: 1rem;
 }
 
-#name, #effName { flex: 2; width: 50%; }
-#init, #effDur { width: 60px; }
+.btn-add { background: var(--accent); border: none; color: white; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex-grow: 1; }
+.btn-dice { background: #475569; border: none; color: white; padding: 12px; border-radius: 8px; }
 
-.btn-add { background: var(--accent); border: none; color: white; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.btn-add-eff { background: var(--effect-color); border: none; color: white; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-table {
-width: 100%;
-background: var(--card-bg);
-border-collapse: collapse;
-border-radius: 10px;
-overflow: hidden;
-margin-bottom: 15px;
+table { width: 100%; border-collapse: collapse; }
+tr.active-turn { background-color: var(--active-row); border-left: 5px solid var(--secondary); }
+td { padding: 10px 4px; border-bottom: 1px solid #334155; }
+.drag-handle { cursor: grab; color: #475569; padding-right: 5px; font-size: 1.1rem; user-select: none; }
+/* Optimiertes Feld für zweistellige Initiative */
+.inline-init {
+width: 48px; /* Perfekt für 2 Stellen */
+padding: 6px 0;
+background: #0f172a;
+border: 1px solid #475569;
+color: white;
+text-align: center;
+border-radius: 6px;
+font-size: 1rem;
+font-weight: bold;
+-moz-appearance: textfield; /* Entfernt Spinner in Firefox */
 }
+/* Entfernt Spinner (Pfeile) in Chrome/Safari */
+.inline-init::-webkit-outer-spin-button,
+.inline-init::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-th { background: #0f3460; padding: 10px; text-align: left; font-size: 0.8rem; }
-td { padding: 10px; border-bottom: 1px solid #1a1a2e; }
+.is-persistent { color: var(--player-color); font-weight: bold; }
+.controls { display: flex; gap: 4px; justify-content: flex-end; align-items: center; }
+.btn-move { background: #334155; border: none; color: #94a3b8; padding: 7px; border-radius: 4px; font-size: 0.8rem; line-height: 1; }
+.btn-del { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 6px 10px; border-radius: 4px; }
 
-.controls { display: flex; gap: 5px; justify-content: flex-end; }
-.btn-move { background: var(--secondary); border: none; color: white; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
-.btn-del { background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
-
-.footer-row { display: flex; justify-content: flex-end; width: 100%; margin: 15px 0; }
 .round-box {
-width: 50%;
 background: var(--secondary);
+padding: 15px;
+border-radius: 16px;
 display: flex;
 justify-content: space-between;
 align-items: center;
-padding: 10px 15px;
-border-radius: 10px;
+margin-bottom: var(--gap);
 }
 
-#roundDisplay { color: var(--accent); font-size: 1.2rem; font-weight: bold; }
-.btn-next { background: #28a745; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.btn-clear { width: 100%; padding: 10px; background: none; border: 1px solid #ff4d4d; color: #ff4d4d; border-radius: 5px; cursor: pointer; }
+.round-info { font-size: 1.1rem; font-weight: bold; }
+.btn-next { background: #10b981; border: none; color: white; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-/* Drag & Drop */
-tr.draggable { cursor: grab; }
-tr.dragging { opacity: 0.4; }
-tr.drag-over { border-top: 2px solid var(--accent); }
+.effect-tag {
+font-size: 0.7rem;
+background: rgba(56, 189, 248, 0.2);
+color: var(--effect-color);
+padding: 2px 5px;
+border-radius: 4px;
+margin-left: 4px;
+display: inline-block;
+border: 1px solid rgba(56, 189, 248, 0.2);
+}
 </style>
 </head>
 <body>
 
 <div class="container">
+<div class="section">
 <h2>⚔️ Initiative</h2>
-
 <div class="input-group">
-<input type="text" id="name" placeholder="Charakter">
-<input type="number" id="init" placeholder="Ini">
-<button class="btn-add" onclick="addCharacter()">OK</button>
+<input type="text" id="name" placeholder="Charakter" style="flex:3;">
+<input type="number" id="init" placeholder="Ini" style="width:65px;">
+<button class="btn-dice" onclick="rollInit()">🎲</button>
 </div>
-
-<table id="initTable">
-<thead>
-<tr><th>Ini</th><th>Name</th><th style="text-align: right;">Aktion</th></tr>
-</thead>
+<div style="display:flex; gap:10px; align-items:center; margin-bottom: 15px;">
+<label style="font-size: 0.85rem; cursor:pointer;"><input type="checkbox" id="persistent"> 🛡️ Gruppe</label>
+<button class="btn-add" onclick="addCharacter()">HINZUFÜGEN</button>
+</div>
+<table id="draggableTable">
 <tbody id="tableBody"></tbody>
 </table>
+</div>
 
-<div class="footer-row">
 <div class="round-box">
-<div>RUNDE: <span id="roundDisplay">1</span></div>
-<button class="btn-next" onclick="nextRound()">Nächste ➔</button>
-</div>
-</div>
-
-<h3>✨ Aktive Effekte</h3>
-<div class="input-group" style="border-left: 4px solid var(--effect-color);">
-<input type="text" id="effName" placeholder="Effekt (z.B. Segen)">
-<input type="number" id="effDur" placeholder="Rnd">
-<button class="btn-add-eff" onclick="addEffect()">OK</button>
+<div class="round-info">RUNDE: <span id="roundDisplay">1</span></div>
+<button class="btn-next" onclick="nextTurn()">Nächster Zug ➔</button>
 </div>
 
+<div class="section">
+<h2 style="color:var(--effect-color)">✨ Effekt für aktiven Charakter</h2>
+<select id="spellSelect" onchange="useSpell()" style="width:100%; margin-bottom:10px;">
+<option value="">-- Schnellwahl Sprüche --</option>
+<option value="🛡️ Segen">Segen (10 Rnd)</option>
+<option value="✨ Schutz vor Bösem">Schutz vor Bösem (10 Rnd)</option>
+<option value="⚡ Hast">Hast (10 Rnd)</option>
+<option value="🔥 Brennend">Brennend (1 Rnd)</option>
+<option value="🌀 Betäubt">Betäubt (1 Rnd)</option>
+<option value="🧪 Vergiftet">Vergiftet (1 Rnd)</option>
+</select>
+<div class="input-group">
+<input type="text" id="effName" placeholder="Effekt-Name" style="flex:3;">
+<input type="number" id="effDur" placeholder="Rnd" style="width:60px;">
+<button class="btn-add" style="background:var(--effect-color)" onclick="addEffect()">OK</button>
+</div>
 <table id="effectTable">
-<thead>
-<tr><th>Dauer</th><th>Effekt</th><th style="text-align: right;">Aktion</th></tr>
-</thead>
 <tbody id="effTableBody"></tbody>
 </table>
-<button onclick="clearAll()" class="btn-clear">Kampf beenden / Alles leeren</button>
+</div>
+
+<div style="width:100%; display:flex; flex-direction:column; gap:10px;">
+<button onclick="endCombat()" class="btn-add" style="background:#3b82f6;">Kampf beenden</button>
+<button onclick="clearAll()" style="background:transparent; border:none; color:#64748b; padding:10px; cursor:pointer; font-size: 0.8rem;">Alles zurücksetzen</button>
+</div>
 </div>
 
 <script>
 let characters = JSON.parse(localStorage.getItem('rpg_init')) || [];
 let effects = JSON.parse(localStorage.getItem('rpg_effects')) || [];
 let currentRound = parseInt(localStorage.getItem('rpg_round')) || 1;
-let dragSrcEl = null;
+let activeIndex = parseInt(localStorage.getItem('rpg_active_idx')) || 0;
 
 function save() {
 localStorage.setItem('rpg_init', JSON.stringify(characters));
 localStorage.setItem('rpg_effects', JSON.stringify(effects));
 localStorage.setItem('rpg_round', currentRound);
+localStorage.setItem('rpg_active_idx', activeIndex);
 }
 
-function updateRoundDisplay() {
-document.getElementById('roundDisplay').innerText = currentRound;
+function rollInit() { document.getElementById('init').value = Math.floor(Math.random() * 20) + 1; }
+
+function useSpell() {
+const s = document.getElementById('spellSelect'), n = document.getElementById('effName'), d = document.getElementById('effDur');
+if(s.value) {
+n.value = s.value;
+d.value = (s.value.includes("Segen") || s.value.includes("Schutz") || s.value.includes("Hast")) ? 10 : 1;
+}
+}
+
+function updateTables() {
 save();
+document.getElementById('roundDisplay').innerText = currentRound;
+const tChar = document.getElementById('tableBody');
+tChar.innerHTML = '';
+characters.forEach((c, i) => {
+const row = document.createElement('tr');
+row.draggable = true;
+row.dataset.index = i;
+if(i === activeIndex) row.className = 'active-turn';
+const charEffects = effects.filter(e => e.ownerId === c.id);
+const effectHtml = charEffects.map(e => `<span class="effect-tag">${e.name} (${e.duration})</span>`).join('');
+
+row.innerHTML = `
+<td class="drag-handle">☰</td>
+<td><input type="number" class="inline-init" value="${c.init}" onfocus="this.select()" onchange="updateIni(${i}, this.value)"></td>
+<td class="${c.persistent ? 'is-persistent' : ''}" style="width:100%; padding-left: 5px;">
+${c.persistent ? '🛡️ ' : ''}${c.name} ${effectHtml}
+</td>
+<td class="controls">
+<button class="btn-move" onclick="moveManual(${i},-1)">▲</button>
+<button class="btn-move" onclick="moveManual(${i},1)">▼</button>
+${!c.persistent ? `<button class="btn-del" onclick="removeChar(${i})">✕</button>` : ''}
+</td>`;
+row.addEventListener('dragstart', handleDragStart);
+row.addEventListener('dragover', handleDragOver);
+row.addEventListener('drop', handleDrop);
+row.addEventListener('dragend', handleDragEnd);
+tChar.appendChild(row);
+});
+
+const tEff = document.getElementById('effTableBody');
+tEff.innerHTML = '';
+effects.forEach((e, i) => {
+const owner = characters.find(c => c.id === e.ownerId);
+tEff.innerHTML += `<tr>
+<td style="width:30px; color:var(--effect-color); font-weight:bold;">${e.duration}</td>
+<td>${e.name} <small style="opacity:0.6;">(${owner ? owner.name : '?'})</small></td>
+<td class="controls"><button class="btn-del" onclick="removeEff(${i})">✕</button></td>
+</tr>`;
+});
 }
 
-function nextRound() {
-currentRound++;
-// Effekte reduzieren
-effects = effects.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0);
-updateRoundDisplay();
+let dragSrcEl = null;
+function handleDragStart(e) { dragSrcEl = this; e.dataTransfer.effectAllowed = 'move'; }
+function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); return false; }
+function handleDrop(e) {
+if (e.stopPropagation) e.stopPropagation();
+const fromIdx = parseInt(dragSrcEl.dataset.index);
+const toIdx = parseInt(this.dataset.index);
+if (fromIdx !== toIdx) {
+const item = characters.splice(fromIdx, 1)[0];
+characters.splice(toIdx, 0, item);
+updateTables();
+}
+return false;
+}
+function handleDragEnd() {}
+
+function nextTurn() {
+if(characters.length === 0) return;
+const currentId = characters[activeIndex].id;
+effects = effects.map(e => {
+if(e.ownerId === currentId) return { ...e, duration: e.duration - 1 };
+return e;
+}).filter(e => e.duration > 0);
+activeIndex++;
+if (activeIndex >= characters.length) { activeIndex = 0; currentRound++; }
 updateTables();
 }
 
 function addCharacter() {
-const n = document.getElementById('name'), i = document.getElementById('init');
+const n = document.getElementById('name'), i = document.getElementById('init'), p = document.getElementById('persistent');
 if(n.value && i.value) {
-characters.push({ name: n.value, init: parseInt(i.value) });
-n.value = ''; i.value = '';
-updateTables(true);
+characters.push({ id: Date.now() + Math.random(), name: n.value, init: parseInt(i.value), persistent: p.checked });
+characters.sort((a, b) => b.init - a.init);
+n.value = ''; i.value = ''; p.checked = false;
+updateTables();
 }
 }
 
 function addEffect() {
 const n = document.getElementById('effName'), d = document.getElementById('effDur');
-if(n.value && d.value) {
-effects.push({ name: n.value, duration: parseInt(d.value) });
+if(n.value && d.value && characters[activeIndex]) {
+effects.push({ name: n.value, duration: parseInt(d.value), ownerId: characters[activeIndex].id });
 n.value = ''; d.value = '';
 updateTables();
 }
 }
 
+function updateIni(index, val) {
+characters[index].init = parseInt(val) || 0;
+characters.sort((a, b) => b.init - a.init);
+updateTables();
+}
+
 function moveManual(index, dir) {
-const newIdx = index + dir;
-if (newIdx >= 0 && newIdx < characters.length) {
+const newIdx = Math.max(0, Math.min(characters.length - 1, index + dir));
 const item = characters.splice(index, 1)[0];
 characters.splice(newIdx, 0, item);
-updateTables(false);
-}
+updateTables();
 }
 
 function removeChar(i) { characters.splice(i, 1); updateTables(); }
 function removeEff(i) { effects.splice(i, 1); updateTables(); }
-
-function clearAll() {
-if(confirm("Alles löschen?")) {
-characters = []; effects = []; currentRound = 1;
-updateRoundDisplay(); updateTables();
+function endCombat() {
+if(confirm("Kampf beenden?")) {
+characters = characters.filter(c => c.persistent).map(c => ({...c, init: 0}));
+effects = []; currentRound = 1; activeIndex = 0;
+updateTables();
 }
 }
-
-// Drag & Drop
-function handleDragStart(e) { dragSrcEl = this; this.classList.add('dragging'); }
-function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); this.classList.add('drag-over'); return false; }
-function handleDragLeave() { this.classList.remove('drag-over'); }
-function handleDrop(e) {
-if (e.stopPropagation) e.stopPropagation();
-this.classList.remove('drag-over');
-const from = parseInt(dragSrcEl.dataset.index), to = parseInt(this.dataset.index);
-if (from !== to) {
-const item = characters.splice(from, 1)[0];
-characters.splice(to, 0, item);
-updateTables(false);
-}
-return false;
-}
-
-function updateTables(sort = false) {
-if (sort) characters.sort((a, b) => b.init - a.init);
-save();
-// Init Tabelle
-const tChar = document.getElementById('tableBody');
-tChar.innerHTML = '';
-characters.forEach((c, i) => {
-const row = document.createElement('tr');
-row.className = 'draggable'; row.draggable = true; row.dataset.index = i;
-row.innerHTML = `<td><b>${c.init}</b></td><td>${c.name}</td><td class="controls">
-<button class="btn-move" onclick="event.stopPropagation(); moveManual(${i},-1)">▲</button>
-<button class="btn-move" onclick="event.stopPropagation(); moveManual(${i},1)">▼</button>
-<button class="btn-del" onclick="event.stopPropagation(); removeChar(${i})">X</button></td>`;
-row.addEventListener('dragstart', handleDragStart);
-row.addEventListener('dragover', handleDragOver);
-row.addEventListener('dragleave', handleDragLeave);
-row.addEventListener('drop', handleDrop);
-row.addEventListener('dragend', function() { this.classList.remove('dragging'); });
-tChar.appendChild(row);
-});
-
-// Effekt Tabelle
-const tEff = document.getElementById('effTableBody');
-tEff.innerHTML = '';
-effects.forEach((e, i) => {
-tEff.innerHTML += `<tr><td><b style="color:var(--effect-color)">${e.duration}</b></td><td>${e.name}</td>
-<td class="controls"><button class="btn-del" onclick="removeEff(${i})">X</button></td></tr>`;
-});
-}
-
-updateTables(true);
-updateRoundDisplay();
+function clearAll() { if(confirm("Alles löschen?")) { localStorage.clear(); location.reload(); } }
+updateTables();
 </script>
-
 </body>
 </html>
