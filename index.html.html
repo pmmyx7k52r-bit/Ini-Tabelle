@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RPG Initiative & Effekte</title>
+<style>
+:root {
+--bg-color: #1a1a2e;
+--card-bg: #16213e;
+--accent: #e94560;
+--text: #e9e9e9;
+--secondary: #533483;
+--effect-color: #00a8cc;
+}
+
+body {
+font-family: 'Segoe UI', sans-serif;
+background-color: var(--bg-color);
+color: var(--text);
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 10px;
+margin: 0;
+}
+
+.container { width: 100%; max-width: 500px; }
+h2 { text-align: center; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; font-size: 1.2rem; }
+h3 { color: var(--effect-color); margin: 20px 0 10px 0; font-size: 1rem; border-bottom: 1px solid var(--secondary); }
+
+.input-group {
+background: var(--card-bg);
+padding: 15px;
+border-radius: 10px;
+display: flex;
+gap: 8px;
+margin-bottom: 15px;
+box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+input {
+background: #0f3460;
+border: 1px solid var(--secondary);
+color: white;
+padding: 10px;
+border-radius: 5px;
+}
+
+#name, #effName { flex: 2; width: 50%; }
+#init, #effDur { width: 60px; }
+
+.btn-add { background: var(--accent); border: none; color: white; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.btn-add-eff { background: var(--effect-color); border: none; color: white; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+table {
+width: 100%;
+background: var(--card-bg);
+border-collapse: collapse;
+border-radius: 10px;
+overflow: hidden;
+margin-bottom: 15px;
+}
+
+th { background: #0f3460; padding: 10px; text-align: left; font-size: 0.8rem; }
+td { padding: 10px; border-bottom: 1px solid #1a1a2e; }
+
+.controls { display: flex; gap: 5px; justify-content: flex-end; }
+.btn-move { background: var(--secondary); border: none; color: white; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
+.btn-del { background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 5px 8px; border-radius: 3px; cursor: pointer; }
+
+.footer-row { display: flex; justify-content: flex-end; width: 100%; margin: 15px 0; }
+.round-box {
+width: 50%;
+background: var(--secondary);
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 15px;
+border-radius: 10px;
+}
+
+#roundDisplay { color: var(--accent); font-size: 1.2rem; font-weight: bold; }
+.btn-next { background: #28a745; border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.btn-clear { width: 100%; padding: 10px; background: none; border: 1px solid #ff4d4d; color: #ff4d4d; border-radius: 5px; cursor: pointer; }
+
+/* Drag & Drop */
+tr.draggable { cursor: grab; }
+tr.dragging { opacity: 0.4; }
+tr.drag-over { border-top: 2px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>⚔️ Initiative</h2>
+
+<div class="input-group">
+<input type="text" id="name" placeholder="Charakter">
+<input type="number" id="init" placeholder="Ini">
+<button class="btn-add" onclick="addCharacter()">OK</button>
+</div>
+
+<table id="initTable">
+<thead>
+<tr><th>Ini</th><th>Name</th><th style="text-align: right;">Aktion</th></tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<div class="footer-row">
+<div class="round-box">
+<div>RUNDE: <span id="roundDisplay">1</span></div>
+<button class="btn-next" onclick="nextRound()">Nächste ➔</button>
+</div>
+</div>
+
+<h3>✨ Aktive Effekte</h3>
+<div class="input-group" style="border-left: 4px solid var(--effect-color);">
+<input type="text" id="effName" placeholder="Effekt (z.B. Segen)">
+<input type="number" id="effDur" placeholder="Rnd">
+<button class="btn-add-eff" onclick="addEffect()">OK</button>
+</div>
+
+<table id="effectTable">
+<thead>
+<tr><th>Dauer</th><th>Effekt</th><th style="text-align: right;">Aktion</th></tr>
+</thead>
+<tbody id="effTableBody"></tbody>
+</table>
+<button onclick="clearAll()" class="btn-clear">Kampf beenden / Alles leeren</button>
+</div>
+
+<script>
+let characters = JSON.parse(localStorage.getItem('rpg_init')) || [];
+let effects = JSON.parse(localStorage.getItem('rpg_effects')) || [];
+let currentRound = parseInt(localStorage.getItem('rpg_round')) || 1;
+let dragSrcEl = null;
+
+function save() {
+localStorage.setItem('rpg_init', JSON.stringify(characters));
+localStorage.setItem('rpg_effects', JSON.stringify(effects));
+localStorage.setItem('rpg_round', currentRound);
+}
+
+function updateRoundDisplay() {
+document.getElementById('roundDisplay').innerText = currentRound;
+save();
+}
+
+function nextRound() {
+currentRound++;
+// Effekte reduzieren
+effects = effects.map(e => ({ ...e, duration: e.duration - 1 })).filter(e => e.duration > 0);
+updateRoundDisplay();
+updateTables();
+}
+
+function addCharacter() {
+const n = document.getElementById('name'), i = document.getElementById('init');
+if(n.value && i.value) {
+characters.push({ name: n.value, init: parseInt(i.value) });
+n.value = ''; i.value = '';
+updateTables(true);
+}
+}
+
+function addEffect() {
+const n = document.getElementById('effName'), d = document.getElementById('effDur');
+if(n.value && d.value) {
+effects.push({ name: n.value, duration: parseInt(d.value) });
+n.value = ''; d.value = '';
+updateTables();
+}
+}
+
+function moveManual(index, dir) {
+const newIdx = index + dir;
+if (newIdx >= 0 && newIdx < characters.length) {
+const item = characters.splice(index, 1)[0];
+characters.splice(newIdx, 0, item);
+updateTables(false);
+}
+}
+
+function removeChar(i) { characters.splice(i, 1); updateTables(); }
+function removeEff(i) { effects.splice(i, 1); updateTables(); }
+
+function clearAll() {
+if(confirm("Alles löschen?")) {
+characters = []; effects = []; currentRound = 1;
+updateRoundDisplay(); updateTables();
+}
+}
+
+// Drag & Drop
+function handleDragStart(e) { dragSrcEl = this; this.classList.add('dragging'); }
+function handleDragOver(e) { if (e.preventDefault) e.preventDefault(); this.classList.add('drag-over'); return false; }
+function handleDragLeave() { this.classList.remove('drag-over'); }
+function handleDrop(e) {
+if (e.stopPropagation) e.stopPropagation();
+this.classList.remove('drag-over');
+const from = parseInt(dragSrcEl.dataset.index), to = parseInt(this.dataset.index);
+if (from !== to) {
+const item = characters.splice(from, 1)[0];
+characters.splice(to, 0, item);
+updateTables(false);
+}
+return false;
+}
+
+function updateTables(sort = false) {
+if (sort) characters.sort((a, b) => b.init - a.init);
+save();
+// Init Tabelle
+const tChar = document.getElementById('tableBody');
+tChar.innerHTML = '';
+characters.forEach((c, i) => {
+const row = document.createElement('tr');
+row.className = 'draggable'; row.draggable = true; row.dataset.index = i;
+row.innerHTML = `<td><b>${c.init}</b></td><td>${c.name}</td><td class="controls">
+<button class="btn-move" onclick="event.stopPropagation(); moveManual(${i},-1)">▲</button>
+<button class="btn-move" onclick="event.stopPropagation(); moveManual(${i},1)">▼</button>
+<button class="btn-del" onclick="event.stopPropagation(); removeChar(${i})">X</button></td>`;
+row.addEventListener('dragstart', handleDragStart);
+row.addEventListener('dragover', handleDragOver);
+row.addEventListener('dragleave', handleDragLeave);
+row.addEventListener('drop', handleDrop);
+row.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+tChar.appendChild(row);
+});
+
+// Effekt Tabelle
+const tEff = document.getElementById('effTableBody');
+tEff.innerHTML = '';
+effects.forEach((e, i) => {
+tEff.innerHTML += `<tr><td><b style="color:var(--effect-color)">${e.duration}</b></td><td>${e.name}</td>
+<td class="controls"><button class="btn-del" onclick="removeEff(${i})">X</button></td></tr>`;
+});
+}
+
+updateTables(true);
+updateRoundDisplay();
+</script>
+
+</body>
+</html>
