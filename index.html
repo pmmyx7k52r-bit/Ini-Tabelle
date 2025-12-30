@@ -53,15 +53,13 @@ font-size: 1rem;
 }
 
 .btn-add { background: var(--accent); border: none; color: white; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; flex-grow: 1; }
-.btn-dice { background: #475569; border: none; color: white; padding: 12px; border-radius: 8px; }
 
 table { width: 100%; border-collapse: collapse; }
 tr.active-turn { background-color: var(--active-row); border-left: 5px solid var(--secondary); }
 td { padding: 10px 4px; border-bottom: 1px solid #334155; }
 .drag-handle { cursor: grab; color: #475569; padding-right: 5px; font-size: 1.1rem; user-select: none; }
-/* Optimiertes Feld für zweistellige Initiative */
 .inline-init {
-width: 48px; /* Perfekt für 2 Stellen */
+width: 48px;
 padding: 6px 0;
 background: #0f172a;
 border: 1px solid #475569;
@@ -70,9 +68,8 @@ text-align: center;
 border-radius: 6px;
 font-size: 1rem;
 font-weight: bold;
--moz-appearance: textfield; /* Entfernt Spinner in Firefox */
+-moz-appearance: textfield;
 }
-/* Entfernt Spinner (Pfeile) in Chrome/Safari */
 .inline-init::-webkit-outer-spin-button,
 .inline-init::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -113,8 +110,7 @@ border: 1px solid rgba(56, 189, 248, 0.2);
 <h2>⚔️ Initiative</h2>
 <div class="input-group">
 <input type="text" id="name" placeholder="Charakter" style="flex:3;">
-<input type="number" id="init" placeholder="Ini" style="width:65px;">
-<button class="btn-dice" onclick="rollInit()">🎲</button>
+<input type="number" id="init" placeholder="Ini" style="flex:1;">
 </div>
 <div style="display:flex; gap:10px; align-items:center; margin-bottom: 15px;">
 <label style="font-size: 0.85rem; cursor:pointer;"><input type="checkbox" id="persistent"> 🛡️ Gruppe</label>
@@ -169,8 +165,6 @@ localStorage.setItem('rpg_effects', JSON.stringify(effects));
 localStorage.setItem('rpg_round', currentRound);
 localStorage.setItem('rpg_active_idx', activeIndex);
 }
-
-function rollInit() { document.getElementById('init').value = Math.floor(Math.random() * 20) + 1; }
 
 function useSpell() {
 const s = document.getElementById('spellSelect'), n = document.getElementById('effName'), d = document.getElementById('effDur');
